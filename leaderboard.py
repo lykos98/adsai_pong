@@ -4,9 +4,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from hashlib import sha256
+import os
 
 # Connect to SQLite database
-conn = sqlite3.connect('pingpong.db', check_same_thread=False)
+
+conn = sqlite3.connect('db/pingpong.db', check_same_thread=False)
 conn.row_factory = sqlite3.Row
 c = conn.cursor()
 

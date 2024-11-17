@@ -9,7 +9,7 @@ st.set_page_config(
         page_title="Players",
 )
 
-conn = sqlite3.connect('pingpong.db', check_same_thread=False)
+conn = sqlite3.connect('db/pingpong.db', check_same_thread=False)
 c = conn.cursor()
 
 def query_players():
