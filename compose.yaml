@@ -1,0 +1,12 @@
+services:
+  adsai_pong:
+    build: .
+    image: adsai_pong:latest
+    container_name: adsai_pong
+    restart: on-failure
+    ports:
+      - "8051:8051"
+
+    volumes:
+      - "adsai_pong/db:/app/adsai_pong/db" 
+
