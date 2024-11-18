@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y git
 
-RUN git clone https://github.com/lykos98/adsai_pong.git .
+RUN git clone https://github.com/lykos98/adsai_pong.git
 
 WORKDIR /app/adsai_pong
 

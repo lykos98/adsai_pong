@@ -5,7 +5,7 @@ services:
     container_name: adsai_pong
     restart: on-failure
     ports:
-      - "8051:8051"
+      - "8501:8501"
 
     volumes:
       - "./db:/app/adsai_pong/db" 
