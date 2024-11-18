@@ -56,37 +56,22 @@ def delete_match(match_id, winner_id, loser_id):
         if pswd == winner['pswd'] or pswd == loser['pswd']:
             c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
 
-            new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
-            new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
-
-            new_winner_wins  = winner['wins'] - 1
-            new_loser_losses = loser['losses'] - 1
-            c.execute("""UPDATE players
-                         SET elo = ?, wins = ?
-                         WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner_id))
-            c.execute("""UPDATE players
-                         SET elo = ?, losses = ?
-                         WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
-            conn.commit()
             deleted = True
-            #try:
-            #    c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
+            try:
+                new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
+                new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
 
-            #    new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
-            #    new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
-
-            #    new_winner_wins  = winner['wins'] - 1
-            #    new_loser_losses = loser['losses'] - 1
-            #    c.execute("""UPDATE players
-            #                 SET elo = ?, wins = ?
-            #                 WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner['player_id']))
-            #    c.execute("""UPDATE players
-            #                 SET elo = ?, losses = ?
-            #                 WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser['player_id']))
-            #    conn.commit()
-            #    deleted = True
-            #except:
-            #    st.error("Wrong password")
+                new_winner_wins  = winner['wins'] - 1
+                new_loser_losses = loser['losses'] - 1
+                c.execute("""UPDATE players
+                          SET elo = ?, wins = ?
+                          WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner_id))
+                c.execute("""UPDATE players
+                          SET elo = ?, losses = ?
+                          WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
+                conn.commit()
+            except:
+                st.error("Wrong password")
         else:
             st.error("Wrong password")
     if deleted:
