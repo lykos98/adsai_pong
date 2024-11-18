@@ -54,21 +54,24 @@ def delete_match(match_id, winner_id, loser_id):
 
     if st.button(label = "Delete"):
         if pswd == winner['pswd'] or pswd == loser['pswd']:
-            new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
-            new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
+            try:
+                new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
+                new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
 
-            new_winner_wins  = winner['wins'] - 1
-            new_loser_losses = loser['losses'] - 1
-            print(mew_winner_elo, new_loser_elo)
-            c.execute("""UPDATE players
-                      SET elo = ?, wins = ?
-                      WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner_id))
-            c.execute("""UPDATE players
-                      SET elo = ?, losses = ?
-                      WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
-            c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
-            conn.commit()
-            deleted = True
+                new_winner_wins  = winner['wins'] - 1
+                new_loser_losses = loser['losses'] - 1
+                print(new_winner_elo, new_loser_elo)
+                c.execute("""UPDATE players
+                          SET elo = ?, wins = ?
+                          WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner_id))
+                c.execute("""UPDATE players
+                          SET elo = ?, losses = ?
+                          WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
+                c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
+                conn.commit()
+                deleted = True
+            except:
+                st.error("An error occurred while deleting the match")
 
         else:
             st.error("Wrong password")
