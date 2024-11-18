@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y git
 
-COPY ./webapp .
+COPY webapp webapp
 
 WORKDIR /app/webapp
 
