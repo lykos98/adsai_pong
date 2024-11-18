@@ -38,25 +38,55 @@ def delete_match(match_id, winner_id, loser_id):
     pswd = sha256(pswd.encode('utf-8')).hexdigest()
     deleted = False
 
-    try:
-        c.execute('''SELECT pswd FROM players WHERE player_id = ?''', (winner_id,))
-        winner_pswd = c.fetchone()['pswd']
+    c.execute("""SELECT * FROM matches WHERE match_id = ?""", (match_id,))
+    match_info = c.fetchone()
 
-        c.execute('''SELECT pswd FROM players WHERE player_id = ?''', (loser_id,))
-        loser_pswd = c.fetchone()['pswd']
+    try:
+        c.execute('''SELECT pswd,elo,wins FROM players WHERE player_id = ?''', (winner_id,))
+        winner = c.fetchone()
+
+        c.execute('''SELECT pswd,elo,losses FROM players WHERE player_id = ?''', (loser_id,))
+        loser = c.fetchone()
     except:
         st.error('Cannot find player id')
         
 
 
     if st.button(label = "Delete"):
-        if pswd == winner_pswd or pswd == loser_pswd:
-            try:
-                c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
-                conn.commit()
-                deleted = True
-            except:
-                st.error("Wrong password")
+        if pswd == winner['pswd'] or pswd == loser['pswd']:
+            c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
+
+            new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
+            new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
+
+            new_winner_wins  = winner['wins'] - 1
+            new_loser_losses = loser['losses'] - 1
+            c.execute("""UPDATE players
+                         SET elo = ?, wins = ?
+                         WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner_id))
+            c.execute("""UPDATE players
+                         SET elo = ?, losses = ?
+                         WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
+            conn.commit()
+            deleted = True
+            #try:
+            #    c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
+
+            #    new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
+            #    new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
+
+            #    new_winner_wins  = winner['wins'] - 1
+            #    new_loser_losses = loser['losses'] - 1
+            #    c.execute("""UPDATE players
+            #                 SET elo = ?, wins = ?
+            #                 WHERE player_id = ?""", (new_winner_elo, new_winner_wins, winner['player_id']))
+            #    c.execute("""UPDATE players
+            #                 SET elo = ?, losses = ?
+            #                 WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser['player_id']))
+            #    conn.commit()
+            #    deleted = True
+            #except:
+            #    st.error("Wrong password")
         else:
             st.error("Wrong password")
     if deleted:
@@ -65,8 +95,8 @@ def delete_match(match_id, winner_id, loser_id):
 def query_matches():
     c.execute("""
                SELECT 
-                    pw.nickname AS winner_nickname, 
-                    pl.nickname AS loser_nickname, 
+                    COALESCE(pw.nickname, "***") AS winner_nickname, 
+                    COALESCE(pl.nickname, "***") AS loser_nickname, 
                     matches.winner_id,
                     matches.loser_id,
                     matches.match_id,
@@ -77,9 +107,9 @@ def query_matches():
                     matches.delta_elo_loser
                 FROM 
                     matches
-                JOIN 
+                LEFT JOIN 
                     players AS pw ON matches.winner_id = pw.player_id
-                JOIN 
+                LEFT JOIN 
                     players AS pl ON matches.loser_id = pl.player_id;""")
     return c.fetchall()
 
@@ -111,9 +141,10 @@ with st.form("match"):
 
                 try:
                     c.execute("""INSERT INTO matches 
-                                 (winner_id, loser_id, date, elo_winner, elo_loser, delta_elo_winner, delta_elo_loser) 
-                                 VALUES (?,?,?,?,?,?,?)""",
-                                    (winner_properties['player_id'],
+                                 (match_id, winner_id, loser_id, date, elo_winner, elo_loser, delta_elo_winner, delta_elo_loser) 
+                                 VALUES (?,?,?,?,?,?,?,?)""",
+                                    (int(datetime.now().timestamp() * 1000),
+                                     winner_properties['player_id'],
                                      loser_properties['player_id'],
                                      str(datetime.now()),
                                      winner_properties['elo'],

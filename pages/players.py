@@ -66,8 +66,9 @@ with st.form("player"):
                 st.warning("Passwords do not match")
             else:
                 try:
-                    c.execute(''' INSERT INTO players (nickname,name,surname,bio,elo,wins,losses,pswd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
-                              (nickname, 
+                    c.execute(''' INSERT INTO players (player_id,nickname,name,surname,bio,elo,wins,losses,pswd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                              (int(datetime.now().timestamp() * 1000),
+                               nickname, 
                                name, 
                                surname,
                                bio,
