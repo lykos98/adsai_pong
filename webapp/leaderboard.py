@@ -16,8 +16,7 @@ c = conn.cursor()
 def query_players():
     c.execute("""
               SELECT * FROM players
-              ORDER BY nickname ASC
-              LIMIT 3
+              ORDER BY elo DESC
               """)
     return c.fetchall()
 

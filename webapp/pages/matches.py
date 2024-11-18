@@ -96,7 +96,8 @@ def query_matches():
                 LEFT JOIN 
                     players AS pw ON matches.winner_id = pw.player_id
                 LEFT JOIN 
-                    players AS pl ON matches.loser_id = pl.player_id;""")
+                    players AS pl ON matches.loser_id = pl.player_id
+                ORDER BY matches.date DESC;""")
     return c.fetchall()
 
 
