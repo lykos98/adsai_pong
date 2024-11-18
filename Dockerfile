@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y git
 
 WORKDIR /app/adsai_pong
 
-COPY ./* .
+COPY ./leaderboard.py .
+
 
 RUN pip3 install -r requirements.txt
 
