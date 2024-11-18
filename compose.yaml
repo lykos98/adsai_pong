@@ -8,5 +8,5 @@ services:
       - "8051:8051"
 
     volumes:
-      - "db:/app/adsai_pong/db" 
+      - "./db:/app/adsai_pong/db" 
 
