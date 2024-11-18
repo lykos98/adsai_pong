@@ -54,9 +54,7 @@ def delete_match(match_id, winner_id, loser_id):
 
     if st.button(label = "Delete"):
         if pswd == winner['pswd'] or pswd == loser['pswd']:
-            c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
 
-            deleted = True
             try:
                 new_winner_elo = winner['elo'] - match_info['delta_elo_winner']
                 new_loser_elo = loser['elo'] - match_info['delta_elo_loser']
@@ -69,7 +67,9 @@ def delete_match(match_id, winner_id, loser_id):
                 c.execute("""UPDATE players
                           SET elo = ?, losses = ?
                           WHERE player_id = ?""", (new_loser_elo, new_loser_losses, loser_id))
+                c.execute(''' DELETE FROM matches WHERE match_id = ?''', (match_id,))
                 conn.commit()
+                deleted = True
             except:
                 st.error("Wrong password")
         else:
