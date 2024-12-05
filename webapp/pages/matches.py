@@ -97,7 +97,7 @@ def query_matches():
                     players AS pw ON matches.winner_id = pw.player_id
                 LEFT JOIN 
                     players AS pl ON matches.loser_id = pl.player_id
-                ORDER BY matches.date DESC;""")
+                ORDER BY matches.date DESC LIMIT 20;""")
     return c.fetchall()
 
 
@@ -162,6 +162,7 @@ with st.form("match"):
 
 results = query_matches()
 if len(results) > 0:
+    st.write(f"### Last 20 matches")
     for r in results:
         col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 2, 2])
         with col1:
