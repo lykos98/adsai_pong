@@ -1,3 +1,5 @@
 streamlit
 pandas
 numpy
+pyro-ppl
+schedule
