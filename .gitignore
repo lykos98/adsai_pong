@@ -1,2 +1,3 @@
 **.db
-webapp/model/results
+webapp/model/results/*
+!webapp/model/results/.placeholder

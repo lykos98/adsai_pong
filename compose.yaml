@@ -8,5 +8,6 @@ services:
       - "8501:8501"
 
     volumes:
-      - "./webapp/db:/app/webapp/db" 
+      - "./webapp/db:/app/webapp/db"
+      - "./webapp/model/results:/app/webapp/model/results"
 

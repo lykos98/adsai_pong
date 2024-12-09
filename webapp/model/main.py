@@ -1,5 +1,5 @@
 import math
-import sys
+import os
 
 import numpy as np
 import pandas as pd
@@ -227,6 +227,7 @@ def update() -> bool:
         win_probability_matrix = compute_win_probability_matrix(posterior_samples)
 
         folder = "model/results/"
+        os.makedirs(folder, exist_ok=True)
         store_guide(guide=guide, path=folder + "guide.pt")
         store_skills_representation(
             map=map_estimate,
