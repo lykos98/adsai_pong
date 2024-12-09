@@ -16,7 +16,7 @@ win_probability_matrix = pd.read_csv('model/results/win_probability_matrix.csv',
 latent_skill = pd.read_csv('model/results/skills.csv', index_col=0)
 matchup = pd.read_csv('model/results/match_up_bonus_matrix.csv', index_col=0)
 
-st.title("Model")
+st.title("Predictions")
 
 st.subheader("Win probability")
 st.dataframe(win_probability_matrix, use_container_width=True)
