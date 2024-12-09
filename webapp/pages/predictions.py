@@ -9,7 +9,7 @@ st.set_page_config(
         page_title="Predictions",
 )
 
-if 'win_probability_matrix.csv' not in os.listdir('model/results'):
+if (not os.path.exists('model/results')) or ('win_probability_matrix.csv' not in os.listdir('model/results')):
     update()
     
 win_probability_matrix = pd.read_csv('model/results/win_probability_matrix.csv', index_col=0)
