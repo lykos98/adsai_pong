@@ -7,7 +7,7 @@ import pyro
 import torch
 import tqdm
 from pyro.infer import SVI, Predictive, Trace_ELBO
-from pyro.infer.autoguide.guides import AutoDiagonalNormal
+from pyro.infer.autoguide.guides import AutoDiagonalNormal, AutoMultivariateNormal
 from pyro.optim import RAdam
 import hashlib
 import argparse
@@ -231,8 +231,8 @@ def update() -> bool:
     
     if new_games(games_tensor): # Should also check if data is actually there
         
-        delta_guide = initialize_guide(guide_to_reuse='model/results/delta_guide.pt', player_names = names, default = pyro.infer.autoguide.AutoDelta(model))
-        guide = initialize_guide(guide_to_reuse='model/results/guide.pt', player_names = names, default = AutoDiagonalNormal(model))
+        delta_guide = initialize_guide(guide_to_reuse=None, player_names = names, default = pyro.infer.autoguide.AutoDelta(model))
+        guide = initialize_guide(guide_to_reuse=None, player_names = names, default = AutoDiagonalNormal(model))
         
         delta_guide = vi(
             model=model,
@@ -240,7 +240,7 @@ def update() -> bool:
             n_steps=5000 if not DEBUG else 10,
             num_particles=1,
             opt_params={"lr": 0.005},
-            patience=300,
+            patience=100,
             guide=delta_guide,
         )
 
@@ -250,7 +250,7 @@ def update() -> bool:
             model=model,
             data=games_tensor,
             n_steps=2000 if not DEBUG else 10,
-            num_particles=10,
+            num_particles=5,
             opt_params={"lr": 0.01},
             patience=300,
             guide=guide,

@@ -4,10 +4,10 @@ import pyro
 import pyro.distributions as dist
 import torch
 
-MODEL_MATCH_UP_BONUS_SCALE = False
+MODEL_MATCH_UP_BONUS_SCALE = True
 PRIOR = {
-    "loc_log_match_up_bonus_scale": -1.0,
-    "scale_log_match_up_bonus_scale": 3.0,
+    "loc_log_match_up_bonus_scale": 0.0,
+    "scale_log_match_up_bonus_scale": 1.0,
 }
 
 
