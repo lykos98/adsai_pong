@@ -212,7 +212,7 @@ def same_players(player_names):
     new_hash = list_hash(player_names)
     return new_hash == old_hash
     
-def initialize_guide(guide_to_reuse: str | None, player_names, default):
+def initialize_guide(guide_to_reuse: str, player_names, default):
     if guide_to_reuse is not None and same_players(player_names) and os.path.exists(guide_to_reuse):
         print("Reusing guide")
         return torch.load(guide_to_reuse, weights_only=False)
