@@ -164,7 +164,12 @@ def tensor_hash(tensor: torch.Tensor):
     hash_object = hashlib.sha256()
     hash_object.update(tensor.numpy().tobytes())    
     return hash_object.hexdigest()
-    
+
+def list_hash(input_list):
+    list_string = str(input_list)    
+    hash_object = hashlib.sha256()
+    hash_object.update(list_string.encode('utf-8'))
+    return hash_object.hexdigest()
     
 def store_games_hash(games_tensor: torch.Tensor, folder: str):    
     with open(f"{folder}/games_hash.txt", 'w') as file:
@@ -181,6 +186,38 @@ def new_games(games_tensor: torch.Tensor):
     new_hash = tensor_hash(games_tensor)
     return new_hash != old_hash
     
+def there_are_new_games(database_file: str = "db/pingpong.db"):
+    try:
+        with open(f"model/results/games_hash.txt", 'r') as file:
+            old_hash = file.read()
+    except FileNotFoundError:
+        return True
+    
+    dfs = load_database(database_file)
+    names, games = get_players_and_games(dfs)
+    games_tensor = get_games_tensor(games, names)
+    return new_games(games_tensor)
+
+def store_players_hash(player_names: list, folder: str):    
+    with open(f"{folder}/players_hash.txt", 'w') as file:
+        file.write(list_hash(player_names))
+
+def same_players(player_names):
+    try:
+        with open(f"model/results/players_hash.txt", 'r') as file:
+            old_hash = file.read()
+    except FileNotFoundError:
+        return True
+    
+    new_hash = list_hash(player_names)
+    return new_hash == old_hash
+    
+def initialize_guide(guide_to_reuse: str | None, player_names, default):
+    if guide_to_reuse is not None and same_players(player_names) and os.path.exists(guide_to_reuse):
+        print("Reusing guide")
+        return torch.load(guide_to_reuse, weights_only=False)
+    return default
+    
     
 def update() -> bool:
     set_seed(SEED)
@@ -193,7 +230,10 @@ def update() -> bool:
     games_tensor = get_games_tensor(games, names)
     
     if new_games(games_tensor): # Should also check if data is actually there
-
+        
+        delta_guide = initialize_guide(guide_to_reuse='model/results/delta_guide.pt', player_names = names, default = pyro.infer.autoguide.AutoDelta(model))
+        guide = initialize_guide(guide_to_reuse='model/results/guide.pt', player_names = names, default = AutoDiagonalNormal(model))
+        
         delta_guide = vi(
             model=model,
             data=games_tensor,
@@ -201,7 +241,7 @@ def update() -> bool:
             num_particles=1,
             opt_params={"lr": 0.005},
             patience=300,
-            guide=pyro.infer.autoguide.AutoDelta(model),
+            guide=delta_guide,
         )
 
         map_estimate = delta_guide.median()
@@ -213,7 +253,7 @@ def update() -> bool:
             num_particles=10,
             opt_params={"lr": 0.01},
             patience=300,
-            guide=AutoDiagonalNormal(model),
+            guide=guide,
         )
 
         posterior_samples = Predictive(model, guide=guide, num_samples=5000 if not DEBUG else 10)(games_tensor)
@@ -228,6 +268,7 @@ def update() -> bool:
 
         folder = "model/results/"
         os.makedirs(folder, exist_ok=True)
+        store_guide(guide=delta_guide, path=folder + "delta_guide.pt")
         store_guide(guide=guide, path=folder + "guide.pt")
         store_skills_representation(
             map=map_estimate,
@@ -240,6 +281,7 @@ def update() -> bool:
             win_probability_matrix=win_probability_matrix, names=names, path=folder
         )
         store_games_hash(games_tensor, folder)
+        store_players_hash(names, folder)
         return True
     else:
         print("No new games")
