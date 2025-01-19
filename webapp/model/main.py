@@ -286,6 +286,20 @@ def update() -> bool:
     else:
         print("No new games")
         return False
+    
+def safe_update(lock_file: str ='/tmp/pyro_update.lock'):
+    result = False
+    if os.path.exists(lock_file):
+        print(f"Another instance is already running.")
+        return result
+    else:
+        try:
+            open(lock_file, 'w').close()
+            result = update()
+        finally:
+            if os.path.exists(lock_file):
+                os.remove(lock_file)
+            return result
         
 if __name__ == "__main__":
     update()

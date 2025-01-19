@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import sys
 sys.path.append('model')
-from main import update, there_are_new_games
+from main import safe_update, there_are_new_games
 
 
 def show_predictions(placeholders):
@@ -28,12 +28,12 @@ st.set_page_config(
 
 # If no prediction has been made yet, update the model before showing anything
 if (not os.path.exists('model/results')) or ('win_probability_matrix.csv' not in os.listdir('model/results')):
-    update()
+    safe_update()
         
 placeholders = [st.empty() for _ in range(7)]
 show_predictions(placeholders=placeholders)
 
 # If the games have been updated, update the model and show the updated predictions (in the meanwhile, show the old ones)
 if there_are_new_games():
-    update()
+    safe_update()
     show_predictions(placeholders=placeholders)
